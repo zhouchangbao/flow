@@ -57,7 +57,7 @@ flow用于git的分支流程管理；以下几个概念：
 
 ###图例
 
-![Flow modle](https://raw.githubusercontent.com/tftc/flow/master/template/flow-model.png)
+![Flow modle](https://raw.githubusercontent.com/zhouchangbao/flow/master/template/flow-model.png)
 
 
 ##形成flow项目

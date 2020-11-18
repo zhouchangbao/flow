@@ -11,7 +11,7 @@ if [ -d "$FLOW_SH" ]; then
 fi
 
 echo "\033[0;34mCloning flow...\033[0m"
-hash git >/dev/null 2>&1 && env git clone --depth=1 https://github.com/tftc/flow.git $FLOW_SH || {
+hash git >/dev/null 2>&1 && env git clone --depth=1 https://github.com/zhouchangbao/flow.git $FLOW_SH || {
   echo "git not installed"
   exit
 }
@@ -21,7 +21,7 @@ if [ -f ~/.bashrc ] || [ -h ~/.bashrc ] ; then
   echo "\033[0;33mFound ~/.bashrc.\033[0m \033[0;32mBacking up to ~/.bashrc.pre-flow\033[0m";
   cp ~/.bashrc ~/.bashrc.pre-flow;
 else
-    
+
   echo "\033[0;34mUsing the flow bashrc template file and adding it to ~/.bashrc\033[0m"
   cp $FLOW_SH/template/bashrc-template ~/.bashrc
 fi
@@ -34,7 +34,7 @@ if ! grep -q 'export PATH=' ~/.bashrc ; then
      echo "export PATH=$PATH">>~/.bashrc;
 fi
 #check .flow is contains in path
-if ! echo "$PATH" | grep -q "$FLOW_SH" ; then 
+if ! echo "$PATH" | grep -q "$FLOW_SH" ; then
     sed -i -e "/export PATH=/ c\\
     export PATH=$PATH:$FLOW_SH
     " ~/.bashrc

@@ -133,7 +133,7 @@ gitflow_has_master_configured() {
 gitflow_has_prefixes_configured() {
 	git config --get gitflow.prefix.feature >/dev/null 2>&1     && \
 	git config --get gitflow.prefix.release >/dev/null 2>&1     && \
-	git config --get gitflow.prefix.hotfix >/dev/null 2>&1      
+	git config --get gitflow.prefix.hotfix >/dev/null 2>&1
 }
 
 gitflow_is_initialized() {
@@ -299,13 +299,13 @@ require_branches_absolutely_equal() {
 generate_tag_version() {
 	local tagname=$1
 	if git_tag_exists "$tagname"; then
-        #get tag max count  
+        #get tag max count
         local count=$(git_do tag -l "$tagname"-*|awk -F '-build.' '{print $2}'|sort -nr|head -n 1)
         if [ -z "$count" ]; then
             count=1
         else
             count=$[$count+1]
-        fi    
+        fi
         tagname="$tagname-build.$count"
     fi
     echo $tagname
@@ -316,19 +316,32 @@ require_tag_validation() {
 	local tagname_=$1
     local latest_tag="$(get_latest_tag)"
     local latest_tag_="$(get_latest_tag)"
-    echo "latest_tag = '$latest_tag_' tagname = '$tagname_'"
-
-    local latest_tag_version_arr=(`echo $latest_tag|sed 's/v//g;s/\-build//g;s/\./ /g'|awk -F '-' '{printf($1)}'|awk '{printf($0)}'`)
+    echo $latest_tag_
+    local latest_tag_version_arr=(`echo $latest_tag|sed 's/v//g;s/\-build//g;s/\./ /g'|awk '{printf($0)}'`)
     local tagname_version_arr=(`echo $tagname|sed 's/v//g;s/\-build//g;s/\./ /g'|awk '{printf($0)}'`)
+    echo "latest_tag_version: '${latest_tag_version_arr[@]}', tagname_version; '${tagname_version_arr[@]}'"
+
     if [ ${latest_tag_version_arr[0]} -gt ${tagname_version_arr[0]} ]; then
-       die "current tagName is '$tagname_', git latestTagName is '$latest_tag_', Please check it!"
+       die "current tagName is '$tagname_', git latestTagName is '$latest_tag_', Please check it0!"
+    elif [ ${latest_tag_version_arr[0]} -lt ${tagname_version_arr[0]} ]; then
+    	return 0
     fi
+
     if [ ${latest_tag_version_arr[1]} -gt ${tagname_version_arr[1]} ]; then
-       die "current tagName is '$tagname_', git latestTagName is '$latest_tag_', Please check it!"
+       die "current tagName is '$tagname_', git latestTagName is '$latest_tag_', Please check it1!"
+    elif [ ${latest_tag_version_arr[1]} -lt ${tagname_version_arr[1]} ]; then
+    	return 0
     fi
-    if [ ${latest_tag_version_arr[2]} -gt ${tagname_version_arr[2]} ]; then
-       die "current tagName is '$tagname_', git latestTagName is '$latest_tag_', Please check it!"
+
+    local tag_str2_array=(${latest_tag_version_arr[2]//-/ })
+    local tag_str2_version=${tag_str2_array[0]}
+    if [ $tag_str2_version -gt ${tagname_version_arr[2]} ]; then
+       die "current tagName is '$tagname_', git latestTagName is '$latest_tag_', Please check it2!"
+    elif [ $tag_str2_version -lt ${tagname_version_arr[2]} ]; then
+        echo "check 2"
+        return 0
     fi
+
     if [[ ${tagname_version_arr[3]} && $latest_tag_version_arr[3] ]]; then
        if [ ${latest_tag_version_arr[3]} -gt ${tagname_version_arr[3]} ]; then
           die "current tagName is '$tagname_', git latestTagName is '$latest_tag_', Please check it!"
@@ -340,14 +353,14 @@ require_in_current_branch(){
 	local current_branch=$(git_current_branch)
     if [ "$current_branch" != "$BRANCH" ]; then
         default_suggestion='yes'
-        echo 
+        echo
         echo "The current branch is $current_branch, not $BRANCH"
 		printf "    Do you want checkout to $BRANCH then contine? [$default_suggestion] "
 		read answer
 		answer=${answer:-$default_suggestion}
-        [ "$answer" != "yes" ] && die 'Please checkout to $BRANCH manually' 		
+        [ "$answer" != "yes" ] && die 'Please checkout to $BRANCH manually'
         echo "      Branch $current_branch Will auto checkout to $BRANCH "
-        git_do checkout -q $BRANCH 
+        git_do checkout -q $BRANCH
     fi
 }
 
@@ -360,6 +373,6 @@ get_latest_tag() {
             echo "$1-build.$count"
         fi
     else
-        echo "$(git_do describe --tags)" 
+        echo "$(git_do describe --tags)"
     fi
 }

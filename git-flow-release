@@ -180,14 +180,14 @@ require_in_current_branch(){
 	local current_branch=$(git_current_branch)
     if [ "$current_branch" != "$BRANCH" ]; then
         default_suggestion='yes'
-        echo 
+        echo
         echo "The current branch is $current_branch, not $BRANCH"
 		printf "    Do you want checkout to $BRANCH then contine? [$default_suggestion] "
 		read answer
 		answer=${answer:-$default_suggestion}
-        [ "$answer" != "yes" ] && die 'Please checkout to $BRANCH manually' 		
+        [ "$answer" != "yes" ] && die 'Please checkout to $BRANCH manually'
         echo "      Branch $current_branch Will auto checkout to $BRANCH "
-        git_do checkout -q $BRANCH 
+        git_do checkout -q $BRANCH
     fi
 }
 
@@ -197,7 +197,7 @@ use_current_branch_name() {
 		BRANCH=$current_branch
 		NAME=${BRANCH#$PREFIX}
         REMOTE_BRANCH=$BRANCH
-        REMOTE_NAME=$NAME    
+        REMOTE_NAME=$NAME
 	else
 		warn "The current HEAD is no $PREFIX branch."
 		warn "Please specify a <name> argument."
@@ -226,7 +226,7 @@ cmd_start() {
 	git_do fetch -q "$ORIGIN" "$MASTER_BRANCH"
 	require_branch_absent "$BRANCH"
 	require_tag_absent "$VERSION"
-    
+
 	if has "$ORIGIN/$MASTER_BRANCH" $(git_remote_branches); then
 		require_branches_equal "$MASTER_BRANCH" "$ORIGIN/$MASTER_BRANCH"
 	fi
@@ -250,7 +250,7 @@ cmd_start() {
 
 
 cmd_build(){
-    
+
 	DEFINE_boolean test false "building on test " t
 	DEFINE_boolean productTest false "building on product test" p
 	DEFINE_string message "" "use the given tag message" m
@@ -278,15 +278,15 @@ cmd_build(){
     fi
     if flag product_test; then
         VERSION_PREFIX="productTest/"
-    fi        
+    fi
 	local tagname=$VERSION_PREFIX$VERSION
-    #get current tag max count value 
-    local count=$(git_do tag -l "$tagname-*"|awk -F '-' '{print $2}'|sort -r|head -1) 
+    #get current tag max count value
+    local count=$(git_do tag -l "$tagname-*"|awk -F '-' '{print $2}'|sort -r|head -1)
     if [ -z "$count" ]; then
         count=1
     else
         count=$[$count+1]
-    fi    
+    fi
     tagname="$tagname-$count"
 	if ! git_tag_exists "$tagname"; then
 		local opts="-a"
@@ -312,7 +312,7 @@ cmd_push() {
     require_remote_branch "$ORIGIN/$REMOTE_BRANCH"
 
 	require_clean_working_tree
-	
+
 	git_do fetch -q "$ORIGIN" "$MASTER_BRANCH" || \
         die "Could not fetch $MASTER_BRANCH from $ORIGIN."
 
@@ -328,13 +328,13 @@ cmd_push() {
             die "There were merge conflicts."
     fi
 
-    #try to pull remote changes 
+    #try to pull remote changes
 	git_do pull -q "$ORIGIN" "$REMOTE_BRANCH" || die "Failed to pull from remote '$REMOTE'."
 
-    git_do push "$ORIGIN" "$BRANCH":"refs/for/$REMOTE_BRANCH" 
+    git_do push "$ORIGIN" "$BRANCH":"refs/for/$REMOTE_BRANCH"
 
     if [ $? -ne 0 ]; then
-       die "git push codeReview failed, Please check it." 
+       die "git push codeReview failed, Please check it."
     fi
 
 	echo
@@ -391,14 +391,13 @@ cmd_publish() {
 		  die "Could not fetch tag from $ORIGIN."
 
 	local tagname=$VERSION_PREFIX$VERSION
-    
+
     tagname="$(generate_tag_version "$tagname")"
     require_tag_validation "$tagname"
-
 	if ! git_tag_exists "$tagname"; then
 		git_do tag -a "$tagname" "$BRANCH" || \
 		die "Tagging failed. Please run finish again to retry."
-    else
+  else
 		die "Tag name: $tagname has exists. Please check."
 	fi
 
@@ -439,7 +438,7 @@ cmd_finish() {
 	parse_args "$@"
 
 	require_version_arg
-	
+
     require_in_current_branch
 
     require_clean_working_tree
@@ -492,11 +491,11 @@ cmd_finish() {
            die "There were merge conflicts."
     fi
 
-    #push master to origin 
+    #push master to origin
 	git_do push "$ORIGIN" "$MASTER_BRANCH" || \
 		die "Could not push to $MASTER_BRANCH from $ORIGIN."
 
-    git_do branch -D $BRANCH 
+    git_do branch -D $BRANCH
 
 	echo
 	echo "Summary of actions:"
@@ -510,7 +509,7 @@ cmd_track() {
 	parse_track_args "$@"
 
     if [ -z "$NAME" -o -z "$REMOTE_NAME" ]; then
-        die "Command 'flow release track $@' format is error , Please use 'flow release track <remote_version> [version]'" 
+        die "Command 'flow release track $@' format is error , Please use 'flow release track <remote_version> [version]'"
     fi
 
 	# sanity checks
